@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryColor">#F4EBD0</color> <!-- Warm Sand -->
+    <color name="secondaryColor">#5A0016</color> <!-- Deep Royal Blue -->
+    <color name="backgroundColor">#F8F8F8</color> <!-- White Smoke -->
+    <color name="textColor">#333333</color> <!-- Charcoal -->
+    <color name="white">#FFFFFF</color>
+    <color name="orange">#FF5722</color>
+</resources>
