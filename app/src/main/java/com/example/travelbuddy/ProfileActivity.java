@@ -16,6 +16,8 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -27,6 +29,7 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,8 @@ public class ProfileActivity extends AppCompatActivity {
                 Glide.with(this).load(photoUri).into(ivProfileImage);
             }
         }
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         // Handle name edit
         btnEditName.setOnClickListener(v -> showEditNameDialog());
@@ -101,8 +106,17 @@ public class ProfileActivity extends AppCompatActivity {
         currentUser.updateProfile(profileUpdates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        tvUserName.setText(newName);
-                        Toast.makeText(this, "Name updated!", Toast.LENGTH_SHORT).show();
+                        // Update the username in Realtime Database as well
+                        String userId = currentUser.getUid();
+                        mDatabase.child("users").child(userId).child("fullName").setValue(newName)
+                                .addOnCompleteListener(dbTask -> {
+                                    if (dbTask.isSuccessful()) {
+                                        tvUserName.setText(newName);
+                                        Toast.makeText(this, "Name updated!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(this, "Failed to update name in database", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     } else {
                         Toast.makeText(this, "Failed to update name", Toast.LENGTH_SHORT).show();
                     }

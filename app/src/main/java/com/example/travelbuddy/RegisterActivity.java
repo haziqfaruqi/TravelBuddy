@@ -11,13 +11,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText email, password, fullName;
     private FirebaseAuth mAuth;
     private Button createAccountBtn;
+    private DatabaseReference mDatabase;  // Firebase Realtime Database reference
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +27,11 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference(); // initialize database reference
 
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
-        fullName = findViewById(R.id.fullName);  // ambil ID yang betul
+        fullName = findViewById(R.id.fullName);
         createAccountBtn = findViewById(R.id.createAccountBtn);
 
         TextView loginText = findViewById(R.id.loginText);
@@ -52,21 +55,22 @@ public class RegisterActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            // Simpan full name ke user profile
-                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(fullNameText)
-                                    .build();
-
                             if (user != null) {
-                                user.updateProfile(profileUpdates)
-                                        .addOnCompleteListener(updateTask -> {
-                                            if (updateTask.isSuccessful()) {
+                                String userId = user.getUid();
+
+                                // Save fullName to Realtime Database ONLY, no need to update profile here
+                                mDatabase.child("users").child(userId).child("fullName").setValue(fullNameText)
+                                        .addOnCompleteListener(dbTask -> {
+                                            if (dbTask.isSuccessful()) {
                                                 Toast.makeText(this, "Account Created", Toast.LENGTH_SHORT).show();
                                                 startActivity(new Intent(this, MainActivity.class));
                                                 finish();
+                                            } else {
+                                                Toast.makeText(this, "Failed to save username", Toast.LENGTH_SHORT).show();
                                             }
                                         });
                             }
+
                         } else {
                             Toast.makeText(this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
