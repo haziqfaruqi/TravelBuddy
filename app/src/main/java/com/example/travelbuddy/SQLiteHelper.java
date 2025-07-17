@@ -23,6 +23,8 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     private static final String COLUMN_LOCATION_NAME = "location_name";
     private static final String COLUMN_DESCRIPTION = "description";
     private static final String COLUMN_PHOTO_LABEL = "photo_label";
+    private static final String TABLE_RECORDS = "records";
+
 
     public SQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -81,9 +83,15 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public void deleteRecord(int id) {
+//    public void deleteRecord(int id) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+//        db.close();
+//    }
+
+    public boolean deleteRecord(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
-        db.close();
+        int affectedRows = db.delete(TABLE_RECORDS, "id = ?", new String[]{String.valueOf(id)});
+        return affectedRows > 0;
     }
 }
