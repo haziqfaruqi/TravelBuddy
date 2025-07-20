@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -58,13 +59,27 @@ public class RegisterActivity extends AppCompatActivity {
                             if (user != null) {
                                 String userId = user.getUid();
 
-                                // Save fullName to Realtime Database ONLY, no need to update profile here
+                                // Save fullName to Realtime Database
                                 mDatabase.child("users").child(userId).child("fullName").setValue(fullNameText)
                                         .addOnCompleteListener(dbTask -> {
                                             if (dbTask.isSuccessful()) {
-                                                Toast.makeText(this, "Account Created", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(this, MainActivity.class));
-                                                finish();
+
+                                                // Update FirebaseUser profile display name
+                                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                                        .setDisplayName(fullNameText)
+                                                        .build();
+
+                                                user.updateProfile(profileUpdates)
+                                                        .addOnCompleteListener(updateTask -> {
+                                                            if (updateTask.isSuccessful()) {
+                                                                Toast.makeText(this, "Account Created", Toast.LENGTH_SHORT).show();
+                                                                startActivity(new Intent(this, MainActivity.class));
+                                                                finish();
+                                                            } else {
+                                                                Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+
                                             } else {
                                                 Toast.makeText(this, "Failed to save username", Toast.LENGTH_SHORT).show();
                                             }
