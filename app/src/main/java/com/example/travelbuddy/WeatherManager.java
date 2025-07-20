@@ -15,7 +15,7 @@ import okhttp3.Response;
 
 public class WeatherManager {
     private static final String TAG = "WeatherManager";
-    private static final String API_KEY = "64b90ba09da02d2145c843acdb3043a8";
+    private static final String API_KEY = BuildConfig.WEATHER_API_KEY;
     private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 
     private OkHttpClient client;
